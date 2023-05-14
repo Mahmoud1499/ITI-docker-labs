@@ -31,6 +31,6 @@ jobs:
           image: docker pull mahmoud1499/myapp-repo
           registry: docker.io
           dockerfile: Dockerfile
-          username: mahmoud1499
-          password: Mahmoud_1499
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           tags: latest  

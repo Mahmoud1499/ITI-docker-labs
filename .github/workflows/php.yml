@@ -28,7 +28,7 @@ jobs:
     - name: build docker image and push to hub
       uses: mr-smithers-excellent/docker-build-push@v6
       with: 
-          image: compilereg/itioswebapp
+          image: mahmoud1499/myapp-repo
           registry: docker.io
           dockerfile: Dockerfile
           username: "${{ secrets.DOCKER_USERNAMNE }}"

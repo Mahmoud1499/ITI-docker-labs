@@ -1,0 +1,58 @@
+name: PHP Composer Docker-lab3
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+    - uses: actions/checkout@v3
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+      
+    - name: Build Docker image
+      run: docker build -t myapp-image .
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image to Docker Hub
+      run: docker push mahmoud1499/myapp-repo:latest
+
+    - name: Deploy to production
+      if: github.ref == 'refs/heads/main'
+      run: |
+        ssh user@myserver "docker pull mahmoud1499/myapp-repo:latest"
+        ssh user@myserver "docker run -d --name myapp-container -p 80:80 mahmoud1499/myapp-repo:latest"
+   
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test
